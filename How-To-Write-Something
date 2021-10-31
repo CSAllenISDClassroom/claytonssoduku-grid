@@ -1,0 +1,27 @@
+import Foundation
+import Curses
+
+// Define interrupt handler to terminate Curses with CTRL-C
+class Handler : CursesHandlerProtocol {
+    func interruptHandler() {
+        screen.shutDown()
+        print("Good bye!")
+        exit(0)
+    }
+
+    func windowChangedHandler() {
+    }
+}
+
+// Start up Curses
+let screen = Screen.shared
+screen.startUp(handler:Handler())
+let mainWindow = screen.window
+
+
+
+mainWindow.write("___")
+
+mainWindow.refresh()
+// Wait forever, or until the user presses CTRL-C
+screen.wait()

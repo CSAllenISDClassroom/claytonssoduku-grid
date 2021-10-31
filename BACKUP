@@ -1,0 +1,55 @@
+import Foundation
+import Curses
+
+// Define interrupt handler to terminate Curses with CTRL-C
+class Handler : CursesHandlerProtocol {
+    func interruptHandler() {
+        screen.shutDown()
+        print("Good bye!")
+        exit(0)
+    }
+
+    func windowChangedHandler() {
+    }
+}
+
+// Start up Curses
+let screen = Screen.shared
+screen.startUp(handler:Handler())
+let mainWindow = screen.window
+
+// Move the cursor to an absolute position
+let cursor = mainWindow.cursor
+cursor.position = Point(x:20, y:20)
+
+//Color set up
+
+let colors = Colors.shared
+precondition(colors.areSupported, "This terminal doesn't support colors.")
+colors.startUp()
+let red = Color.standard(.red)
+let white = Color.standard(.white)
+let redOnWhite = colors.newPair(foreground:red, background:white)
+let cyan = Color.standard(.cyan)
+let black = Color.standard(.black)
+let cyanOnBlack = colors.newPair(foreground:black, background:cyan)
+
+
+// Temporarily move the cursor to a new position
+cursor.pushPosition(newPosition:Point(x:0, y:0))
+mainWindow.write("Cursor is at: \(cursor.position)")
+cursor.popPosition()
+
+mainWindow.turnOn(cyanOnBlack)
+mainWindow.write("___ ___ ___ ___")
+mainWindow.write("|_| |_| |_| |_|")
+mainWindow.turnOff(cyanOnBlack)
+mainWindow.turnOn(redOnWhite)
+//cursor.pushPosition(newPosition:Point(x:20, y:0))
+//mainWindow.write("Cursor is at: \(cursor.position)")
+//cursor.popPosition()
+mainWindow.write("|_| |_| |_| |_|")
+mainWindow.turnOff(redOnWhite)
+mainWindow.refresh()
+// Wait forever, or until the user presses CTRL-C
+screen.wait()

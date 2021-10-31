@@ -1,0 +1,141 @@
+import Foundation
+import Curses
+
+// Define interrupt handler to terminate Curses with CTRL-C
+class Handler : CursesHandlerProtocol {
+    func interruptHandler() {
+        screen.shutDown()
+        print("Good bye!")
+        exit(0)
+    }
+    
+    func windowChangedHandler() {
+    }
+}
+
+
+// Start up Curses
+let screen = Screen.shared
+screen.startUp(handler:Handler())
+let mainWindow = screen.window
+
+// Move the cursor to an absolute position
+let cursor = mainWindow.cursor
+cursor.position = Point(x:20, y:20)
+
+//Color set up
+
+let colors = Colors.shared
+precondition(colors.areSupported, "This terminal doesn't support colors.")
+colors.startUp()
+let red = Color.standard(.red)
+let white = Color.standard(.white)
+let redOnWhite = colors.newPair(foreground:red, background:white)
+let cyan = Color.standard(.cyan)
+let black = Color.standard(.black)
+let cyanOnBlack = colors.newPair(foreground:black, background:cyan)
+
+//Functions
+
+//Function used to create boxes without cliping, it must however be used incomplete.
+func LineofBox(X1:Int, Y1:Int, Times:Int) {
+    
+    let Y2 = Y1 + 1
+    let Y3 = Y1 + 2
+    var X1 = X1
+    let T = Times - 1
+    var i = 0
+    
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┼──────")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│     ")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("┼──────")
+    X1 = X1 + 6
+    for _ in 0 ... T {
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┼──────")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│     ")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("┼──────")
+    X1 = X1 + 6
+
+    i = i + 1
+    
+    }
+
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┐")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("┘")
+
+    
+}
+
+func TopLineBox(X1:Int, Y1:Int, Times:Int) {
+    
+    let Y2 = Y1 + 1
+    let Y3 = Y1 + 2
+    var X1 = X1
+    let T = Times - 1
+    var i = 0
+    
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┌──────")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│     ")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("├──────")
+    X1 = X1 + 6
+    for _ in 0 ... T {
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┬──────")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│     ")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("┼──────")
+    X1 = X1 + 6
+
+    i = i + 1
+    
+    }
+
+    mainWindow.cursor.position = Point(x:X1, y:Y1)
+    mainWindow.write("┐")
+    mainWindow.cursor.position = Point(x:X1, y:Y2)
+    mainWindow.write("│")
+    mainWindow.cursor.position = Point(x:X1, y:Y3)
+    mainWindow.write("┘")
+
+    
+}
+
+
+// Temporarily move the cursor to a new position
+cursor.pushPosition(newPosition:Point(x:0, y:0))
+mainWindow.write("Cursor is at: \(cursor.position)")
+cursor.popPosition()
+
+
+
+ TopLineBox(X1:15, Y1:10, Times:8) 
+LineofBox(X1:15, Y1:12, Times:8)
+//for _ in 0 ... 9 {
+    mainWindow.cursor.position = Point(x:15, y:15)
+    mainWindow.write("│")
+    
+
+//}
+LineofBox(X1:15, Y1:16, Times:8)
+mainWindow.turnOff(redOnWhite)
+mainWindow.refresh()
+
+let keyboard = Keyboard.shared
+
+
+// Wait forever, or until the user presses CTRL-C
+screen.wait()
